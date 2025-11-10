@@ -135,6 +135,7 @@ export default function RegisterPage() {
                       type="date"
                       value={dob}
                       onChange={(e) => setDob(e.target.value)}
+                      max="2015-12-31"
                       className="bg-white border-2 border-gray-200 text-black focus:border-red-600"
                     />
                   </div>
