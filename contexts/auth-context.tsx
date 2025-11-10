@@ -95,25 +95,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     club?: string;
     photo_url?: string;
   }) => {
-    const response = await authApi.register(data);
-    localStorage.setItem("authToken", response.token);
-    localStorage.setItem("userRole", "athlete");
-    setUser({
-      id: response.id,
-      email: response.email,
-      role: "athlete",
-      athlete: {
+    try {
+      const response = await authApi.register(data);
+
+      // Save token and role
+      localStorage.setItem("authToken", response.token);
+      localStorage.setItem("userRole", "athlete");
+
+      // Set user state
+      setUser({
         id: response.id,
-        first_name: data.first_name,
-        last_name: data.last_name,
-        dob: data.dob,
-        gender: data.gender,
-        county: data.county,
-        club: data.club,
-        unique_athlete_id: "",
-        photo_url: data.photo_url,
-      },
-    });
+        email: response.email,
+        role: "athlete",
+        athlete: {
+          id: response.id,
+          first_name: data.first_name,
+          last_name: data.last_name,
+          dob: data.dob,
+          gender: data.gender,
+          county: data.county,
+          club: data.club,
+          unique_athlete_id: response.unique_athlete_id || "", // backend can return this if needed
+          photo_url: data.photo_url,
+        },
+      });
+    } catch (err: any) {
+      // Display backend message if available, fallback to generic
+      const message =
+        err.message ||
+        "Registration failed. Please try again or contact support.";
+      console.error("Register error:", message);
+      throw new Error(message); // re-throw so the UI can show it
+    }
   };
 
   const logout = () => {

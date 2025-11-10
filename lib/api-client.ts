@@ -1,6 +1,5 @@
 // lib/api-client.ts
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "https://athech-backend.onrender.com";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 interface ApiRequestOptions {
   method?: "GET" | "POST" | "PUT" | "DELETE";
@@ -13,18 +12,25 @@ async function safeJsonFetch<T>(url: string, options: RequestInit): Promise<T> {
     const res = await fetch(url, options);
     const text = await res.text();
 
-    // Try parse JSON
+    let data: any = null;
     try {
-      const data = JSON.parse(text);
-      if (!res.ok) throw new Error(data.message || "API request failed");
-      return data;
-    } catch (jsonErr) {
+      data = text ? JSON.parse(text) : null;
+    } catch {
       console.error("Failed to parse JSON from response:", text);
       throw new Error(`Invalid JSON from ${url}`);
     }
-  } catch (networkErr) {
-    console.error("Network error or backend not reachable:", networkErr);
-    throw new Error(`Failed to fetch ${url} - is backend running?`);
+
+    // If HTTP error, throw with backend message
+    if (!res.ok) {
+      const message =
+        data?.message || `API request failed with status ${res.status}`;
+      throw new Error(message);
+    }
+
+    return data as T;
+  } catch (err: any) {
+    console.error("Network or API error:", err);
+    throw new Error(err.message || `Failed to fetch ${url}`);
   }
 }
 

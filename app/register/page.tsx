@@ -79,7 +79,7 @@ export default function RegisterPage() {
                 {error && (
                   <div className="bg-red-50 border-2 border-red-600 rounded-lg p-3 flex gap-2 text-red-600 text-sm">
                     <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                    <span>{error}</span>
+                    <span>Registration failed, try again later</span>
                   </div>
                 )}
 
