@@ -44,7 +44,6 @@ export function Navbar() {
     { href: "/about", label: "About", icon: Info },
     { href: "/pricing", label: "Pricing", icon: DollarSign },
     { href: "/contact", label: "Contact", icon: Mail },
-    { href: "/shop", label: "Shop", icon: ShoppingBag },
   ];
 
   return (
