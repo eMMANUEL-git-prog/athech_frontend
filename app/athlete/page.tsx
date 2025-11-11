@@ -17,7 +17,7 @@ import {
 import { apiClient } from "@/lib/api-client";
 
 export default function AthleteDashboard() {
-  const socket = io(process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000");
+  const socket = io(process.env.NEXT_PUBLIC_API_URL || "https://athech-backend.onrender.com");
   const { user, loading } = useRequireRole(["athlete"]);
   const [aiInsights, setAiInsights] = useState<string[]>([]);
   const [refreshing, setRefreshing] = useState(false);

@@ -161,8 +161,7 @@
 // };
 
 // lib/api-client.ts
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "https://athech-backend.onrender.com";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export const apiClient = async (
   endpoint: string,
