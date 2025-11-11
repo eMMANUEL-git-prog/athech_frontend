@@ -11,11 +11,13 @@ import {
   Info,
   DollarSign,
   Mail,
-  ShoppingBag,
   LogOut,
   User,
+  LayoutDashboard,
+  Shield,
+  Dumbbell,
 } from "lucide-react";
-import { useAuth } from "@/contexts/auth-context";
+import { useAuth } from "@/contexts/auth-context"; // ✅ fixed path (singular)
 import { useRouter } from "next/navigation";
 
 export function Navbar() {
@@ -25,16 +27,13 @@ export function Navbar() {
   const router = useRouter();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     router.push("/");
   };
 
@@ -45,6 +44,14 @@ export function Navbar() {
     { href: "/pricing", label: "Pricing", icon: DollarSign },
     { href: "/contact", label: "Contact", icon: Mail },
   ];
+
+  // Role-based links
+  const roleLinks =
+    user?.role === "admin"
+      ? [{ href: "/admin", label: "Admin Panel", icon: Shield }]
+      : user?.role === "coach"
+      ? [{ href: "/coach", label: "Coach Panel", icon: Dumbbell }]
+      : [];
 
   return (
     <>
@@ -58,18 +65,16 @@ export function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="relative">
-              <img
-                src="/logo.png"
-                alt="logo"
-                className="h-12 transition-transform duration-300 group-hover:scale-105"
-              />
-            </div>
+            <img
+              src="/logo.png"
+              alt="logo"
+              className="h-12 transition-transform duration-300 group-hover:scale-105"
+            />
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => {
+            {[...navLinks, ...roleLinks].map((link) => {
               const Icon = link.icon;
               return (
                 <Link key={link.href} href={link.href}>
@@ -83,16 +88,27 @@ export function Navbar() {
                 </Link>
               );
             })}
+            {user && (
+              <Link href="/dashboard">
+                <Button
+                  variant="ghost"
+                  className="text-gray-700 hover:text-green-600 hover:bg-green-50 transition-all duration-200 font-medium flex items-center gap-2"
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  Dashboard
+                </Button>
+              </Link>
+            )}
           </div>
 
-          {/* Desktop Auth Buttons */}
+          {/* Desktop Auth Section */}
           <div className="hidden md:flex items-center gap-3">
             {user ? (
               <>
                 <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-lg border border-green-200">
                   <User className="w-4 h-4 text-green-600" />
                   <span className="text-sm font-medium text-gray-800">
-                    {user.name}
+                    {user.email}
                   </span>
                 </div>
                 <Button
@@ -136,7 +152,7 @@ export function Navbar() {
           </button>
         </div>
 
-        {/* Mobile Navigation Menu - Slides from right */}
+        {/* Mobile Menu */}
         <div
           className={`md:hidden fixed top-[73px] right-0 h-[calc(100vh-73px)] w-72 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out border-l border-gray-200 ${
             isOpen ? "translate-x-0" : "translate-x-full"
@@ -145,7 +161,7 @@ export function Navbar() {
           <div className="flex flex-col h-full">
             <div className="flex-1 overflow-y-auto p-4">
               <div className="space-y-1">
-                {navLinks.map((link) => {
+                {[...navLinks, ...roleLinks].map((link) => {
                   const Icon = link.icon;
                   return (
                     <Link
@@ -159,17 +175,27 @@ export function Navbar() {
                     </Link>
                   );
                 })}
+                {user && (
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:text-green-600 hover:bg-green-50 font-medium rounded-lg transition-all duration-200"
+                  >
+                    <LayoutDashboard className="w-5 h-5" />
+                    Dashboard
+                  </Link>
+                )}
               </div>
             </div>
 
-            {/* Mobile Auth Section */}
+            {/* Mobile Auth */}
             <div className="border-t border-gray-200 p-4 bg-gray-50">
               {user ? (
                 <>
                   <div className="flex items-center gap-2 px-4 py-2 bg-green-50 rounded-lg border border-green-200 mb-3">
                     <User className="w-4 h-4 text-green-600" />
                     <p className="text-sm font-medium text-gray-800">
-                      {user.name}
+                      {user.email}
                     </p>
                   </div>
                   <Button
@@ -205,10 +231,10 @@ export function Navbar() {
         </div>
       </nav>
 
-      {/* Spacer for fixed navbar */}
+      {/* Spacer */}
       <div className="h-[73px]"></div>
 
-      {/* Mobile menu overlay */}
+      {/* Mobile overlay */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 md:hidden transition-opacity duration-300"

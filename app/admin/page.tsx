@@ -1,0 +1,162 @@
+"use client";
+
+import { useRequireRole } from "@/hooks/useRequireRole";
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Users,
+  LayoutDashboard,
+  Shield,
+  AlertTriangle,
+  CheckCircle2,
+  XCircle,
+} from "lucide-react";
+import { apiClient } from "@/lib/api-client"; // your fetch wrapper
+
+export default function AdminDashboard() {
+  const { user, loading } = useRequireRole(["admin"]);
+
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalAdmins: 0,
+    totalCoaches: 0,
+    totalAthletes: 0,
+    totalCamps: 0,
+    accreditedCamps: 0,
+    revokedCamps: 0,
+  });
+
+  const [alerts, setAlerts] = useState<
+    { id: string; title: string; body: string; created_at: string }[]
+  >([]);
+
+  useEffect(() => {
+    if (!loading && user) {
+      // Fetch stats
+      apiClient("/admin/stats")
+        .then((data) => setStats(data))
+        .catch((err) => console.error(err));
+
+      // Fetch recent alerts
+      apiClient("/alerts/recent")
+        .then((data) => setAlerts(data))
+        .catch((err) => console.error(err));
+    }
+  }, [user, loading]);
+
+  if (loading) return <p className="text-center mt-10">Loading...</p>;
+  if (!user) return null;
+
+  return (
+    <div className="min-h-[calc(100vh-73px)] px-4 py-6 bg-gradient-to-b from-green-50 to-white">
+      <h1 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+        <LayoutDashboard className="w-6 h-6 text-green-600" />
+        Admin Dashboard
+      </h1>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <Card icon={Users} title="Total Users" value={stats.totalUsers} />
+        <Card
+          icon={Users}
+          title="Admins"
+          value={stats.totalAdmins}
+          gradient="from-purple-500 to-purple-600"
+        />
+        <Card
+          icon={Users}
+          title="Coaches"
+          value={stats.totalCoaches}
+          gradient="from-indigo-500 to-indigo-600"
+        />
+        <Card
+          icon={Users}
+          title="Athletes"
+          value={stats.totalAthletes}
+          gradient="from-green-500 to-green-600"
+        />
+        <Card
+          icon={Shield}
+          title="Camps"
+          value={stats.totalCamps}
+          gradient="from-yellow-400 to-yellow-500"
+        />
+        <Card
+          icon={CheckCircle2}
+          title="Accredited Camps"
+          value={stats.accreditedCamps}
+          gradient="from-green-500 to-green-600"
+        />
+        <Card
+          icon={XCircle}
+          title="Revoked Camps"
+          value={stats.revokedCamps}
+          gradient="from-red-500 to-red-600"
+        />
+      </div>
+
+      {/* Recent Alerts */}
+      <div className="bg-white shadow-lg rounded-2xl p-6 border border-gray-100">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <AlertTriangle className="w-5 h-5 text-red-500" />
+          Recent Alerts
+        </h2>
+        {alerts.length === 0 ? (
+          <p className="text-gray-500">No recent alerts.</p>
+        ) : (
+          <ul className="space-y-3">
+            {alerts.map((alert) => (
+              <li
+                key={alert.id}
+                className="p-4 bg-green-50 rounded-xl border border-green-200 hover:shadow-md transition-all duration-200"
+              >
+                <h3 className="font-medium text-gray-800">{alert.title}</h3>
+                <p className="text-gray-600 text-sm">{alert.body}</p>
+                <p className="text-gray-400 text-xs mt-1">
+                  {new Date(alert.created_at).toLocaleString()}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {/* Quick Links */}
+      <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Button className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-md hover:shadow-lg transition-all duration-300">
+          Manage Users
+        </Button>
+        <Button className="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-white shadow-md hover:shadow-lg transition-all duration-300">
+          Manage Camps
+        </Button>
+        <Button className="bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-300">
+          View Reports
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function Card({
+  icon: Icon,
+  title,
+  value,
+  gradient = "from-green-500 to-green-600",
+}: {
+  icon: any;
+  title: string;
+  value: number;
+  gradient?: string;
+}) {
+  return (
+    <div
+      className={`flex items-center p-5 rounded-2xl shadow-md bg-gradient-to-r ${gradient} text-white hover:shadow-lg transition-all duration-300`}
+    >
+      <Icon className="w-6 h-6 mr-4" />
+      <div>
+        <h3 className="text-lg font-medium">{title}</h3>
+        <p className="text-2xl font-bold">{value}</p>
+      </div>
+    </div>
+  );
+}
