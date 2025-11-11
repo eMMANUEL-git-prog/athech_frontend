@@ -162,7 +162,7 @@
 
 // lib/api-client.ts
 const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "https://athech-backend.onrender.com/api";
+  process.env.NEXT_PUBLIC_API_URL || "https://athech-backend.onrender.com";
 
 export const apiClient = async (
   endpoint: string,
