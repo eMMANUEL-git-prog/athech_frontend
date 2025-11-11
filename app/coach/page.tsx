@@ -2,6 +2,7 @@
 
 import { useRequireRole } from "@/hooks/useRequireRole";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -116,7 +117,7 @@ export default function CoachDashboard() {
       <AlertsList alerts={alerts} />
 
       {/* Quick Links */}
-      <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="mt-8 grid grid-cols-1 sm:grid-cols-4 gap-4">
         <Button className="bg-gray-700 text-white hover:bg-gray-800">
           Manage Athletes
         </Button>
@@ -126,6 +127,11 @@ export default function CoachDashboard() {
         <Button className="bg-indigo-600 text-white hover:bg-indigo-700">
           Enter Performance
         </Button>
+        <Link href="/coach/register-event">
+          <Button className="bg-green-500 text-white hover:bg-green-600">
+            Register Event
+          </Button>
+        </Link>
       </div>
     </div>
   );

@@ -88,7 +88,7 @@ export function Navbar() {
                 </Link>
               );
             })}
-            {user && (
+            {user?.role === "admin" && (
               <Link href="/dashboard">
                 <Button
                   variant="ghost"

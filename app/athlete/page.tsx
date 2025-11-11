@@ -17,7 +17,6 @@ import {
 import { apiClient } from "@/lib/api-client";
 
 export default function AthleteDashboard() {
-  const socket = io(process.env.NEXT_PUBLIC_API_URL || "https://athech-backend.onrender.com");
   const { user, loading } = useRequireRole(["athlete"]);
   const [aiInsights, setAiInsights] = useState<string[]>([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -37,23 +36,6 @@ export default function AthleteDashboard() {
   useEffect(() => {
     fetchAiInsights();
   }, []);
-
-  useEffect(() => {
-    socket.on("dataUpdated", (payload) => {
-      console.log("🔁 Data updated:", payload);
-      // If relevant to this user type, refetch AI insights automatically
-      if (user?.role === "athlete" && payload.athlete_id === user.id) {
-        fetchAIInsights(); // your existing function
-      }
-      if (user?.role === "admin") {
-        fetchAdminAIInsights();
-      }
-    });
-
-    return () => {
-      socket.off("dataUpdated");
-    };
-  }, [user]);
 
   const [stats, setStats] = useState({
     upcomingEvents: 0,
@@ -124,7 +106,7 @@ export default function AthleteDashboard() {
         />
       </div>
 
-      <div className="bg-white shadow-lg rounded-2xl p-6 border border-gray-100 mt-8">
+      <div className="bg-white shadow-lg rounded-2xl m-16 p-6 border border-gray-100">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-semibold text-gray-800 flex items-center gap-2">
             <Zap className="w-5 h-5 text-indigo-600" />
@@ -171,7 +153,9 @@ export default function AthleteDashboard() {
           Report Injury
         </Button>
       </div>
-      <CoachChat userId={user.id} />
+      <div className="my-10">
+        <CoachChat userId={user.id} />
+      </div>
     </div>
   );
 }
