@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { apiClient } from "@/lib/api-client"; // your fetch wrapper
+import { apiClient } from "@/lib/api-client"; // your wrapper
 
 export default function CoachChat({ userId }: { userId: string }) {
   const [input, setInput] = useState("");
@@ -13,22 +13,18 @@ export default function CoachChat({ userId }: { userId: string }) {
   const [error, setError] = useState<string | null>(null);
 
   const sendMessage = async () => {
-    if (!input.trim()) return;
-
+    if (!input) return;
     setLoading(true);
     setError(null);
 
-    // Add user message to chat
     setMessages((prev) => [...prev, { role: "user", content: input }]);
 
     try {
-      const res = await apiClient("/coach-chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" }, // MUST include
-        body: JSON.stringify({ userId, message: input }),
+      const res = await apiClient("/coach-chat", "POST", {
+        userId,
+        message: input,
       });
 
-      // Add AI/Coach reply
       setMessages((prev) => [...prev, { role: "ai", content: res.reply }]);
       setInput("");
     } catch (err: any) {
